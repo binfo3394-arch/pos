@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ST Mobile POS — Admin Panel</title>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@700;800;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 :root {
   --pri: #6c63ff;
@@ -740,6 +741,43 @@ tr:hover td { background: rgba(108,99,255,0.04); }
       <div class="nav-item" data-panel="danger" onclick="goPanel('danger',this)">
         <span class="nic">⚠️</span><span class="ntxt">Danger Zone</span>
       </div>
+
+      <div class="nav-group-label">Advanced Admin</div>
+      <div class="nav-item" data-panel="adv-analytics" onclick="goPanel('adv-analytics',this)">
+        <span class="nic">🔮</span><span class="ntxt">Business Analytics</span>
+      </div>
+      <div class="nav-item" data-panel="adv-staff" onclick="goPanel('adv-staff',this)">
+        <span class="nic">👷</span><span class="ntxt">Staff Manager</span>
+      </div>
+      <div class="nav-item" data-panel="adv-tax" onclick="goPanel('adv-tax',this)">
+        <span class="nic">🧾</span><span class="ntxt">Tax & GST Config</span>
+      </div>
+      <div class="nav-item" data-panel="adv-commission" onclick="goPanel('adv-commission',this)">
+        <span class="nic">💰</span><span class="ntxt">Commission Rules</span>
+      </div>
+      <div class="nav-item" data-panel="adv-notifications" onclick="goPanel('adv-notifications',this)">
+        <span class="nic">🔔</span><span class="ntxt">Notification Rules</span>
+      </div>
+
+      <div class="nav-group-label">Business Tools</div>
+      <div class="nav-item" data-panel="adv-inventory" onclick="goPanel('adv-inventory',this)">
+        <span class="nic">📦</span><span class="ntxt">Inventory Overview</span>
+      </div>
+      <div class="nav-item" data-panel="adv-crm" onclick="goPanel('adv-crm',this)">
+        <span class="nic">👥</span><span class="ntxt">CRM Dashboard</span>
+      </div>
+      <div class="nav-item" data-panel="adv-repair-mgmt" onclick="goPanel('adv-repair-mgmt',this)">
+        <span class="nic">🔧</span><span class="ntxt">Repair Management</span>
+      </div>
+      <div class="nav-item" data-panel="adv-sales-intel" onclick="goPanel('adv-sales-intel',this)">
+        <span class="nic">📊</span><span class="ntxt">Sales Intelligence</span>
+      </div>
+      <div class="nav-item" data-panel="adv-branding" onclick="goPanel('adv-branding',this)">
+        <span class="nic">🎨</span><span class="ntxt">Branding & Design</span>
+      </div>
+      <div class="nav-item" data-panel="adv-operations" onclick="goPanel('adv-operations',this)">
+        <span class="nic">⚙️</span><span class="ntxt">Operations</span>
+      </div>
     </div>
     <div class="aside-footer">
       <button class="logout-btn" onclick="doLogout()">🚪 Logout</button>
@@ -755,7 +793,7 @@ tr:hover td { background: rgba(108,99,255,0.04); }
       </div>
       <div class="topbar-right">
         <div class="admin-chip">🛡️ ADMIN</div>
-        <button class="back-btn" onclick="window.location='index_fixed.html'">← Back to POS</button>
+        <button class="back-btn" onclick="window.location='index.html'">← Back to POS</button>
       </div>
     </div>
 
@@ -1169,6 +1207,299 @@ tr:hover td { background: rgba(108,99,255,0.04); }
         </div>
       </div>
 
+      <!-- ══ PANEL: ADVANCED ANALYTICS ══ -->
+      <div class="panel" id="panel-adv-analytics">
+        <div class="acard acard-glow">
+          <div class="acard-title">🔮 Business Performance Analytics</div>
+          <div class="stat-row" style="margin-bottom:18px">
+            <div class="stat-card s1"><div class="stat-ic">💰</div><div class="stat-val" id="adv-total-rev">—</div><div class="stat-label">Total Revenue</div></div>
+            <div class="stat-card s2"><div class="stat-ic">📈</div><div class="stat-val" id="adv-total-profit">—</div><div class="stat-label">Est. Profit</div></div>
+            <div class="stat-card s3"><div class="stat-ic">📊</div><div class="stat-val" id="adv-margin">—</div><div class="stat-label">Profit Margin</div></div>
+            <div class="stat-card s4"><div class="stat-ic">🧾</div><div class="stat-val" id="adv-avg-sale">—</div><div class="stat-label">Avg Sale Value</div></div>
+          </div>
+        </div>
+        <div class="grid2">
+          <div class="acard">
+            <div class="acard-title">📅 Monthly Revenue (This Year)</div>
+            <canvas id="adv-revenue-chart" height="200"></canvas>
+          </div>
+          <div class="acard">
+            <div class="acard-title">🏆 Top Products by Revenue</div>
+            <div id="adv-top-products" style="font-size:13px;line-height:2"></div>
+          </div>
+        </div>
+        <div class="grid2">
+          <div class="acard">
+            <div class="acard-title">💳 Payment Method Split</div>
+            <div id="adv-payment-split" style="font-size:13px;line-height:2"></div>
+          </div>
+          <div class="acard">
+            <div class="acard-title">📦 Category Performance</div>
+            <div id="adv-cat-perf" style="font-size:13px;line-height:2"></div>
+          </div>
+        </div>
+        <div class="acard">
+          <div class="acard-title">⚠️ Business Alerts</div>
+          <div id="adv-alerts"></div>
+        </div>
+      </div>
+
+      <!-- ══ PANEL: STAFF MANAGER ══ -->
+      <div class="panel" id="panel-adv-staff">
+        <div class="acard">
+          <div class="acard-title">👷 Staff Members</div>
+          <div class="info-chip">Staff added here sync with the POS system</div>
+          <button class="btn bpri bsm" onclick="openAdminStaffModal()" style="margin-bottom:14px">+ Add Staff Member</button>
+          <div class="tbl-wrap">
+            <table><thead><tr><th>Name</th><th>Role</th><th>Phone</th><th>Commission</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="admin-staff-tbl"></tbody></table>
+          </div>
+        </div>
+        <div id="admin-staff-form" style="display:none">
+          <div class="acard" style="border-color:rgba(108,99,255,0.3)">
+            <div class="acard-title">Staff Form</div>
+            <div class="grid2">
+              <div class="fg"><label>Full Name</label><input type="text" id="asf-name" placeholder="Staff name"></div>
+              <div class="fg"><label>Role</label><select id="asf-role"><option>Cashier</option><option>Technician</option><option>Manager</option><option>Sales</option><option>Other</option></select></div>
+              <div class="fg"><label>Phone</label><input type="tel" id="asf-phone" placeholder="+94..."></div>
+              <div class="fg"><label>Commission Rate (%)</label><input type="number" id="asf-comm" value="0" min="0" max="100" step="0.5"></div>
+              <div class="fg"><label>Commission Based On</label><select id="asf-comm-base"><option value="revenue">Revenue</option><option value="profit">Profit</option></select></div>
+              <div class="fg"><label>Status</label><select id="asf-status"><option>Active</option><option>Inactive</option></select></div>
+            </div>
+            <input type="hidden" id="asf-id">
+            <div class="action-row">
+              <button class="btn bpri" onclick="saveAdminStaff()">Save Staff</button>
+              <button class="btn" style="background:var(--card2);color:var(--text);border:1px solid var(--border)" onclick="document.getElementById('admin-staff-form').style.display='none'">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ PANEL: TAX CONFIG ══ -->
+      <div class="panel" id="panel-adv-tax">
+        <div class="acard">
+          <div class="acard-title">Tax and GST Configuration</div>
+          <div class="info-chip">Tax settings apply globally to all POS sales</div>
+          <div class="grid2">
+            <div class="fg"><label>Default Tax Rate (%)</label><input type="number" id="tax-rate" min="0" max="100" step="0.5" placeholder="e.g. 15" oninput="updateTaxPreview()"></div>
+            <div class="fg"><label>Tax Label</label><input type="text" id="tax-label" placeholder="e.g. GST, VAT, Tax" oninput="updateTaxPreview()"></div>
+            <div class="fg full"><label>Tax Mode</label><select id="tax-mode" onchange="updateTaxPreview()"><option value="inclusive">Tax Inclusive (price includes tax)</option><option value="exclusive">Tax Exclusive (tax added on top)</option><option value="none">No Tax</option></select></div>
+            <div class="fg full" style="background:rgba(0,176,255,0.05);border:1px solid rgba(0,176,255,0.2);border-radius:10px;padding:14px"><div style="font-size:12px;color:var(--info);margin-bottom:8px;font-weight:700">Tax Preview</div><div id="tax-preview" style="font-size:13px;line-height:2;color:var(--muted)">Update settings to see preview</div></div>
+          </div>
+          <button class="btn bpri" onclick="saveTaxSettings()">Save Tax Settings</button>
+        </div>
+        <div class="acard"><div class="acard-title">Tax Collection Summary</div><div id="tax-summary" style="font-size:13px;line-height:2;color:var(--muted)">Loading...</div></div>
+      </div>
+
+      <!-- ══ PANEL: COMMISSION RULES ══ -->
+      <div class="panel" id="panel-adv-commission">
+        <div class="acard">
+          <div class="acard-title">Commission Rules and Settings</div>
+          <div class="info-chip">Commission is calculated automatically based on staff assignments to sales</div>
+          <div class="grid2">
+            <div class="fg"><label>Enable Commission Tracking</label><div class="toggle-wrap" style="margin-top:4px"><span style="font-size:13px">Commission system active</span><label class="toggle"><input type="checkbox" id="comm-enabled"><span class="slider"></span></label></div></div>
+            <div class="fg"><label>Frequency</label><select id="comm-freq"><option value="monthly">Monthly</option><option value="weekly">Weekly</option><option value="daily">Daily</option></select></div>
+            <div class="fg"><label>Minimum Sales for Commission (Rs.)</label><input type="number" id="comm-min-sales" placeholder="e.g. 10000" min="0"></div>
+            <div class="fg"><label>Commission Payout Day</label><select id="comm-payout-day"><option value="1">1st of Month</option><option value="15">15th of Month</option><option value="last">Last Day of Month</option></select></div>
+          </div>
+          <button class="btn bpri" onclick="saveCommissionSettings()">Save Commission Settings</button>
+        </div>
+        <div class="acard"><div class="acard-title">Commission Report (This Month)</div><div id="comm-report" style="font-size:13px"></div></div>
+      </div>
+
+      <!-- ══ PANEL: NOTIFICATIONS ══ -->
+      <div class="panel" id="panel-adv-notifications">
+        <div class="acard">
+          <div class="acard-title">Notification and Alert Rules</div>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div class="toggle-wrap"><div><div style="font-size:13px;font-weight:600">Low Stock Alerts</div><div style="font-size:11px;color:var(--muted)">Notify when product falls below min stock</div></div><label class="toggle"><input type="checkbox" id="notif-lowstock" checked><span class="slider"></span></label></div>
+            <div class="toggle-wrap"><div><div style="font-size:13px;font-weight:600">Birthday Reminders</div><div style="font-size:11px;color:var(--muted)">Remind about customer birthdays 3 days before</div></div><label class="toggle"><input type="checkbox" id="notif-birthday" checked><span class="slider"></span></label></div>
+            <div class="toggle-wrap"><div><div style="font-size:13px;font-weight:600">Overdue Repair Alerts</div><div style="font-size:11px;color:var(--muted)">Alert when repair passes due date</div></div><label class="toggle"><input type="checkbox" id="notif-repair" checked><span class="slider"></span></label></div>
+            <div class="toggle-wrap"><div><div style="font-size:13px;font-weight:600">Credit Payment Due</div><div style="font-size:11px;color:var(--muted)">Alert when credit installment is due</div></div><label class="toggle"><input type="checkbox" id="notif-credit" checked><span class="slider"></span></label></div>
+            <div class="toggle-wrap"><div><div style="font-size:13px;font-weight:600">Daily Summary (End of Day)</div><div style="font-size:11px;color:var(--muted)">Show daily summary notification at closing</div></div><label class="toggle"><input type="checkbox" id="notif-daily"><span class="slider"></span></label></div>
+          </div>
+          <div style="margin-top:16px;padding:14px;background:var(--card2);border-radius:10px;border:1px solid var(--border)">
+            <div class="fg"><label>Low Stock Threshold Override</label><input type="number" id="notif-lowstock-threshold" placeholder="Uses product min stock if blank" min="0"></div>
+            <div class="fg"><label>WhatsApp Number for Alerts (optional)</label><input type="tel" id="notif-wa-number" placeholder="+94 77 xxx xxxx"></div>
+          </div>
+          <button class="btn bpri" style="margin-top:14px" onclick="saveNotificationSettings()">Save Notification Settings</button>
+        </div>
+        <div class="acard"><div class="acard-title">Current Active Alerts</div><div id="admin-alerts-list" style="font-size:13px"></div></div>
+      </div>
+
+      <!-- ══ PANEL: INVENTORY OVERVIEW ══ -->
+      <div class="panel" id="panel-adv-inventory">
+        <div class="acard acard-glow">
+          <div class="acard-title">📦 Inventory Health Overview</div>
+          <div class="stat-row" style="margin-bottom:16px">
+            <div class="stat-card s1"><div class="stat-ic">📦</div><div class="stat-val" id="inv-total-prods">—</div><div class="stat-label">Total Products</div></div>
+            <div class="stat-card s2"><div class="stat-ic">💰</div><div class="stat-val" id="inv-stock-value">—</div><div class="stat-label">Stock Value (Cost)</div></div>
+            <div class="stat-card s3"><div class="stat-ic">⚠️</div><div class="stat-val" id="inv-low-stock">—</div><div class="stat-label">Low Stock Items</div></div>
+            <div class="stat-card s4"><div class="stat-ic">💤</div><div class="stat-val" id="inv-dead-stock">—</div><div class="stat-label">Dead Stock Items</div></div>
+          </div>
+        </div>
+        <div class="grid2">
+          <div class="acard">
+            <div class="acard-title">🏷️ Stock by Category</div>
+            <div id="inv-cat-breakdown" style="font-size:13px"></div>
+          </div>
+          <div class="acard">
+            <div class="acard-title">📦 Batch Summary</div>
+            <div id="inv-batch-summary" style="font-size:13px"></div>
+          </div>
+        </div>
+        <div class="acard">
+          <div class="acard-title">⚠️ Reorder Recommendations</div>
+          <div id="inv-reorder-list" style="font-size:13px"></div>
+        </div>
+      </div>
+
+      <!-- ══ PANEL: CRM DASHBOARD ══ -->
+      <div class="panel" id="panel-adv-crm">
+        <div class="acard acard-glow">
+          <div class="acard-title">👥 CRM Overview</div>
+          <div class="stat-row" style="margin-bottom:16px">
+            <div class="stat-card s1"><div class="stat-ic">👥</div><div class="stat-val" id="crm-total">—</div><div class="stat-label">Total Customers</div></div>
+            <div class="stat-card s2"><div class="stat-ic">👑</div><div class="stat-val" id="crm-vip">—</div><div class="stat-label">VIP Customers</div></div>
+            <div class="stat-card s3"><div class="stat-ic">😴</div><div class="stat-val" id="crm-atrisk">—</div><div class="stat-label">At-Risk (60d+)</div></div>
+            <div class="stat-card s4"><div class="stat-ic">📞</div><div class="stat-val" id="crm-followups">—</div><div class="stat-label">Pending Follow-ups</div></div>
+          </div>
+        </div>
+        <div class="grid2">
+          <div class="acard">
+            <div class="acard-title">🏆 Top Customers by Revenue</div>
+            <div id="crm-top-customers" style="font-size:13px"></div>
+          </div>
+          <div class="acard">
+            <div class="acard-title">🎂 Upcoming Birthdays</div>
+            <div id="crm-birthdays" style="font-size:13px"></div>
+          </div>
+        </div>
+        <div class="acard">
+          <div class="acard-title">📞 Overdue Follow-ups</div>
+          <div id="crm-overdue-followups" style="font-size:13px"></div>
+        </div>
+      </div>
+
+      <!-- ══ PANEL: REPAIR MANAGEMENT ══ -->
+      <div class="panel" id="panel-adv-repair-mgmt">
+        <div class="acard acard-glow">
+          <div class="acard-title">🔧 Repair Shop Overview</div>
+          <div class="stat-row" style="margin-bottom:16px">
+            <div class="stat-card s1"><div class="stat-ic">🔧</div><div class="stat-val" id="rep-active">—</div><div class="stat-label">Active Repairs</div></div>
+            <div class="stat-card s2"><div class="stat-ic">✅</div><div class="stat-val" id="rep-done-month">—</div><div class="stat-label">Done This Month</div></div>
+            <div class="stat-card s3"><div class="stat-ic">🔴</div><div class="stat-val" id="rep-overdue">—</div><div class="stat-label">Overdue</div></div>
+            <div class="stat-card s4"><div class="stat-ic">💰</div><div class="stat-val" id="rep-revenue-month">—</div><div class="stat-label">Repair Revenue</div></div>
+          </div>
+        </div>
+        <div class="grid2">
+          <div class="acard">
+            <div class="acard-title">📊 Repair Status Breakdown</div>
+            <div id="rep-status-breakdown" style="font-size:13px"></div>
+          </div>
+          <div class="acard">
+            <div class="acard-title">⏱️ Recent Time Logs</div>
+            <div id="rep-time-logs" style="font-size:13px"></div>
+          </div>
+        </div>
+        <div class="acard">
+          <div class="acard-title">🔴 Overdue Repairs — Action Required</div>
+          <div id="rep-overdue-list"></div>
+        </div>
+      </div>
+
+      <!-- ══ PANEL: SALES INTELLIGENCE ══ -->
+      <div class="panel" id="panel-adv-sales-intel">
+        <div class="acard acard-glow">
+          <div class="acard-title">📊 Sales Intelligence Dashboard</div>
+          <div class="stat-row" style="margin-bottom:16px">
+            <div class="stat-card s1"><div class="stat-ic">📈</div><div class="stat-val" id="si-this-month">—</div><div class="stat-label">This Month Revenue</div></div>
+            <div class="stat-card s2"><div class="stat-ic">📉</div><div class="stat-val" id="si-last-month">—</div><div class="stat-label">Last Month Revenue</div></div>
+            <div class="stat-card s3"><div class="stat-ic">🔮</div><div class="stat-val" id="si-forecast">—</div><div class="stat-label">Next Month Forecast</div></div>
+            <div class="stat-card s4"><div class="stat-ic">🎯</div><div class="stat-val" id="si-conversion">—</div><div class="stat-label">Avg Items/Sale</div></div>
+          </div>
+        </div>
+        <div class="grid2">
+          <div class="acard">
+            <div class="acard-title">💡 Active Upsell Rules</div>
+            <div id="si-upsell-rules" style="font-size:13px"></div>
+          </div>
+          <div class="acard">
+            <div class="acard-title">📅 Weekly Sales Heatmap</div>
+            <div id="si-heatmap" style="font-size:13px"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ PANEL: BRANDING ══ -->
+      <div class="panel" id="panel-adv-branding">
+        <div class="acard">
+          <div class="acard-title">🎨 Invoice & Receipt Design</div>
+          <div class="info-chip">ℹ️ Settings sync with POS Invoice Designer</div>
+          <div class="grid2">
+            <div class="fg"><label>Invoice Template</label>
+              <select id="brand-template">
+                <option value="classic">📄 Classic</option>
+                <option value="modern">🎨 Modern</option>
+                <option value="minimal">✨ Minimal</option>
+              </select>
+            </div>
+            <div class="fg"><label>Primary Color</label>
+              <input type="color" id="brand-color" value="#6c63ff">
+            </div>
+            <div class="fg full"><label>Shop Tagline / Footer</label>
+              <input type="text" id="brand-tagline" placeholder="e.g. Your trusted mobile partner since 2020">
+            </div>
+            <div class="fg full"><label>Logo URL</label>
+              <input type="text" id="brand-logo" placeholder="https://... (image URL)">
+            </div>
+          </div>
+          <button class="btn bpri" onclick="saveBrandSettings()">💾 Save Branding</button>
+        </div>
+        <div class="acard">
+          <div class="acard-title">📱 Digital Business Card / QR</div>
+          <div style="font-size:13px;color:var(--muted);margin-bottom:14px">Share your shop info as a QR code</div>
+          <div id="brand-qr-preview" style="text-align:center;padding:20px;background:var(--card2);border-radius:10px">
+            <div style="font-size:40px;margin-bottom:10px">📱</div>
+            <div id="brand-shop-card" style="font-size:13px;line-height:2;color:var(--muted)">Load shop info...</div>
+            <button class="btn bpri bsm" style="margin-top:12px" onclick="generateBrandQR()">🔗 Generate Share Link</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ PANEL: OPERATIONS ══ -->
+      <div class="panel" id="panel-adv-operations">
+        <div class="acard acard-glow">
+          <div class="acard-title">⚙️ Operations Overview</div>
+          <div class="stat-row" style="margin-bottom:16px">
+            <div class="stat-card s1"><div class="stat-ic">✅</div><div class="stat-val" id="ops-tasks-pending">—</div><div class="stat-label">Pending Tasks</div></div>
+            <div class="stat-card s2"><div class="stat-ic">🔴</div><div class="stat-val" id="ops-tasks-overdue">—</div><div class="stat-label">Overdue Tasks</div></div>
+            <div class="stat-card s3"><div class="stat-ic">👷</div><div class="stat-val" id="ops-staff-today">—</div><div class="stat-label">Staff Scheduled Today</div></div>
+            <div class="stat-card s4"><div class="stat-ic">⏱️</div><div class="stat-val" id="ops-repair-hours">—</div><div class="stat-label">Repair Hours Logged</div></div>
+          </div>
+        </div>
+        <div class="grid2">
+          <div class="acard">
+            <div class="acard-title">✅ Today's Tasks</div>
+            <div id="ops-today-tasks" style="font-size:13px"></div>
+          </div>
+          <div class="acard">
+            <div class="acard-title">📅 Today's Roster</div>
+            <div id="ops-today-roster" style="font-size:13px"></div>
+          </div>
+        </div>
+        <div class="grid2">
+          <div class="acard">
+            <div class="acard-title">☑️ Today's Checklist Status</div>
+            <div id="ops-checklist-status" style="font-size:13px"></div>
+          </div>
+          <div class="acard">
+            <div class="acard-title">🎁 Referral Summary</div>
+            <div id="ops-referrals" style="font-size:13px"></div>
+          </div>
+        </div>
+      </div>
+
     </div><!-- /content -->
   </div><!-- /main -->
 </div><!-- /app -->
@@ -1259,7 +1590,18 @@ var panelTitles = {
   'pos-settings': '🛒 POS Settings',
   'invoice': '🧾 Invoice Settings',
   'data': '💾 Backup & Restore',
-  'danger': '⚠️ Danger Zone'
+  'danger': '⚠️ Danger Zone',
+  'adv-analytics': '🔮 Business Analytics',
+  'adv-staff': '👷 Staff Manager',
+  'adv-tax': '🧾 Tax & GST Config',
+  'adv-commission': '💰 Commission Rules',
+  'adv-notifications': '🔔 Notification Rules',
+  'adv-inventory': '📦 Inventory Overview',
+  'adv-crm': '👥 CRM Dashboard',
+  'adv-repair-mgmt': '🔧 Repair Management',
+  'adv-sales-intel': '📊 Sales Intelligence',
+  'adv-branding': '🎨 Branding & Design',
+  'adv-operations': '⚙️ Operations'
 };
 
 function goPanel(id, el) {
@@ -1280,6 +1622,17 @@ function goPanel(id, el) {
   if (id === 'pos-settings') loadPOSSettings();
   if (id === 'invoice') loadInvoiceSettings();
   if (id === 'data') loadData();
+  if (id === 'adv-analytics') loadAdvAnalytics();
+  if (id === 'adv-staff') loadAdminStaff();
+  if (id === 'adv-tax') loadTaxPanel();
+  if (id === 'adv-commission') loadCommissionPanel();
+  if (id === 'adv-notifications') loadNotificationsPanel();
+  if (id === 'adv-inventory') loadAdvInventory();
+  if (id === 'adv-crm') loadAdvCRM();
+  if (id === 'adv-repair-mgmt') loadAdvRepairMgmt();
+  if (id === 'adv-sales-intel') loadAdvSalesIntel();
+  if (id === 'adv-branding') loadAdvBranding();
+  if (id === 'adv-operations') loadAdvOperations();
 }
 
 // ── Init ──────────────────────────────────────────────────────────────
@@ -1292,7 +1645,7 @@ function initApp() {
 function loadOverview() {
   var db = getDB();
   if (!db) {
-    document.getElementById('ov-shopinfo').innerHTML = '⚠️ POS data not found in browser.<br><br>Please:<br>1. Make sure <b>index_fixed.html</b> and <b>admin.html</b> are in the same folder<br>2. Open <b>index_fixed.html</b> first so data loads<br>3. Then come back here';
+    document.getElementById('ov-shopinfo').innerHTML = '⚠️ POS data not found in browser.<br><br>Please:<br>1. Make sure <b>index.html</b> and <b>admin.html</b> are in the same folder<br>2. Open <b>index.html</b> first so data loads<br>3. Then come back here';
     ['ov-products','ov-invoices','ov-customers','ov-repairs'].forEach(function(id){ var e=document.getElementById(id); if(e) e.textContent='—'; });
     return;
   }
@@ -1749,10 +2102,539 @@ function saveSetting(key, value) {
 function setVal(id, val) { var el=document.getElementById(id); if(el) el.value = val; }
 function setChk(id, val) { var el=document.getElementById(id); if(el) el.checked = !!val; }
 
-// ── Auto-focus password on load ───────────────────────────────────────
-window.addEventListener('load', function(){
-  setTimeout(function(){ document.getElementById('admin-pass').focus(); }, 400);
-});
+// ═══════════════════════════════════════
+// NEW BUSINESS TOOLS PANELS
+// ═══════════════════════════════════════
+
+function fmtRs(n){ return 'Rs. '+(Math.round(n)||0).toLocaleString(); }
+function parseAdminDate2(str){ if(!str) return null; var iso=str.match(/^(\d{4})-(\d{2})-(\d{2})/); if(iso) return new Date(str); var sl=str.match(/^(\d{2})\/(\d{2})\/(\d{4})/); if(sl) return new Date(sl[3]+'-'+sl[2]+'-'+sl[1]); var d=new Date(str); return isNaN(d)?null:d; }
+
+// ── INVENTORY OVERVIEW ──────────────────────────────────────────────
+function loadAdvInventory() {
+  var db = getDB(); if (!db) return;
+  var products = db.products || [];
+  var invoices = db.invoices || [];
+  var batches = db.batches || [];
+
+  // Last sold per product
+  var lastSold = {};
+  invoices.forEach(function(inv){ (inv.items||[]).forEach(function(it){ var d=parseAdminDate2(inv.date); if(!lastSold[it.id]||d>lastSold[it.id]) lastSold[it.id]=d; }); });
+  var today = new Date();
+
+  var stockVal = products.reduce(function(a,p){ return a+(p.cost||0)*(p.stock||0); },0);
+  var lowStock = products.filter(function(p){ return p.stock<=(p.minStock||2); });
+  var deadStock = products.filter(function(p){ var ls=lastSold[p.id]; return !ls||(today-ls)/86400000>90; });
+
+  document.getElementById('inv-total-prods').textContent = products.length;
+  document.getElementById('inv-stock-value').textContent = fmtRs(stockVal);
+  document.getElementById('inv-low-stock').textContent = lowStock.length;
+  document.getElementById('inv-dead-stock').textContent = deadStock.length;
+
+  // Category breakdown
+  var cats = {};
+  products.forEach(function(p){ var c=p.category||'Other'; if(!cats[c]) cats[c]={count:0,stock:0,value:0}; cats[c].count++; cats[c].stock+=p.stock||0; cats[c].value+=(p.cost||0)*(p.stock||0); });
+  var catEl = document.getElementById('inv-cat-breakdown');
+  catEl.innerHTML = Object.entries(cats).map(function(e){ return '<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border)"><span>'+e[0]+' <span style="color:var(--muted);font-size:11px">('+e[1].count+' products)</span></span><span style="font-size:11px"><strong>'+e[1].stock+'</strong> units | '+fmtRs(e[1].value)+'</span></div>'; }).join('') || '<div style="color:var(--muted)">No products</div>';
+
+  // Batch summary
+  var batchEl = document.getElementById('inv-batch-summary');
+  var expiring = batches.filter(function(b){ var d=b.expiry?new Date(b.expiry):null; var s=new Date(); s.setDate(s.getDate()+30); return d&&d>today&&d<=s; });
+  var expired = batches.filter(function(b){ return b.expiry&&new Date(b.expiry)<=today; });
+  batchEl.innerHTML = '<div style="padding:7px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between"><span>Total Batches</span><strong>'+batches.length+'</strong></div>'+
+    '<div style="padding:7px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between"><span style="color:var(--warning)">Expiring Soon (30d)</span><strong style="color:var(--warning)">'+expiring.length+'</strong></div>'+
+    '<div style="padding:7px 0;display:flex;justify-content:space-between"><span style="color:var(--danger)">Expired</span><strong style="color:var(--danger)">'+expired.length+'</strong></div>';
+
+  // Reorder recommendations
+  var reorderEl = document.getElementById('inv-reorder-list');
+  reorderEl.innerHTML = lowStock.length ? '<table style="width:100%;font-size:12px"><thead><tr><th>Product</th><th>Current</th><th>Min</th><th>Suggested Order</th></tr></thead><tbody>'+
+    lowStock.map(function(p){ var sugg=Math.max((p.minStock||2)*3-p.stock,1); return '<tr><td>'+p.name+'</td><td style="color:var(--danger)">'+p.stock+'</td><td>'+p.minStock+'</td><td style="color:var(--success);font-weight:700">+'+sugg+'</td></tr>'; }).join('')+'</tbody></table>' :
+    '<div style="color:var(--success);padding:10px">✅ All products adequately stocked</div>';
+}
+
+// ── CRM DASHBOARD ────────────────────────────────────────────────────
+function loadAdvCRM() {
+  var db = getDB(); if (!db) return;
+  var customers = db.customers || [];
+  var invoices = db.invoices || [];
+  var repairs = db.repairs || [];
+  var followups = db.followups || [];
+  var today = new Date(); today.setHours(0,0,0,0);
+
+  // Segment customers
+  var vip=0, atRisk=0;
+  var custRevenue = {};
+  invoices.forEach(function(inv){ custRevenue[inv.customer]=(custRevenue[inv.customer]||0)+(inv.total||0); });
+  customers.forEach(function(c){
+    var rev = custRevenue[c.name]||0;
+    var lastInvs = invoices.filter(function(inv){ return inv.customer===c.name; });
+    var lastDate = lastInvs.length?Math.max.apply(null,lastInvs.map(function(inv){ return parseAdminDate2(inv.date)||0; })):0;
+    var days = lastDate ? (today-lastDate)/86400000 : 999;
+    if(rev>20000||lastInvs.length>10) vip++;
+    else if(days>60&&lastInvs.length>0) atRisk++;
+  });
+
+  document.getElementById('crm-total').textContent = customers.length;
+  document.getElementById('crm-vip').textContent = vip;
+  document.getElementById('crm-atrisk').textContent = atRisk;
+  document.getElementById('crm-followups').textContent = followups.filter(function(f){ return f.status!=='done'; }).length;
+
+  // Top customers
+  var topCusts = Object.entries(custRevenue).sort(function(a,b){ return b[1]-a[1]; }).slice(0,6);
+  document.getElementById('crm-top-customers').innerHTML = topCusts.length ?
+    topCusts.map(function(e,i){ return '<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border)"><span>'+(i+1)+'. '+e[0]+'</span><strong style="color:var(--success)">'+fmtRs(e[1])+'</strong></div>'; }).join('') :
+    '<div style="color:var(--muted)">No sales data yet</div>';
+
+  // Birthdays
+  var now2 = new Date();
+  var bdayEl = document.getElementById('crm-birthdays');
+  var upcoming = customers.filter(function(c){
+    if(!c.birthday) return false;
+    var parts = c.birthday.split('-');
+    if(parts.length<2) return false;
+    var bday = new Date(now2.getFullYear(), parseInt(parts[1])-1, parseInt(parts[2])||parseInt(parts[0]));
+    if(bday < now2) bday.setFullYear(now2.getFullYear()+1);
+    return (bday-now2)/86400000 <= 30;
+  });
+  bdayEl.innerHTML = upcoming.length ? upcoming.map(function(c){ return '<div style="padding:7px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between"><span>🎂 '+c.name+'</span><span style="font-size:11px;color:var(--muted)">'+c.birthday+'</span></div>'; }).join('') : '<div style="color:var(--muted);padding:8px">No birthdays in next 30 days</div>';
+
+  // Overdue followups
+  var overdueFu = followups.filter(function(f){ var d=f.dueDate?new Date(f.dueDate):null; if(d) d.setHours(0,0,0,0); return f.status!=='done'&&d&&d<today; }).slice(0,8);
+  document.getElementById('crm-overdue-followups').innerHTML = overdueFu.length ?
+    overdueFu.map(function(f){ return '<div style="padding:8px;margin-bottom:6px;background:rgba(255,23,68,0.06);border-left:3px solid var(--danger);border-radius:6px;display:flex;justify-content:space-between;align-items:center"><div><strong style="font-size:12px">'+f.customer+'</strong><div style="font-size:11px;color:var(--muted)">'+f.note+'</div></div><div style="font-size:11px;color:var(--danger)">Due: '+f.dueDate+'</div></div>'; }).join('') :
+    '<div style="color:var(--success);padding:10px">✅ No overdue follow-ups</div>';
+}
+
+// ── REPAIR MANAGEMENT ────────────────────────────────────────────────
+function loadAdvRepairMgmt() {
+  var db = getDB(); if (!db) return;
+  var repairs = db.repairs || [];
+  var now = new Date();
+  var monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  var active = repairs.filter(function(r){ return r.status!=='Delivered'; });
+  var doneMonth = repairs.filter(function(r){ var d=parseAdminDate2(r.date); return (r.status==='Delivered'||r.status==='Done')&&d&&d>=monthStart; });
+  var overdue = repairs.filter(function(r){ return r.status!=='Delivered'&&r.dueDate&&new Date(r.dueDate)<now; });
+  var repRevMonth = doneMonth.reduce(function(a,r){ return a+(r.cost||0); },0);
+
+  document.getElementById('rep-active').textContent = active.length;
+  document.getElementById('rep-done-month').textContent = doneMonth.length;
+  document.getElementById('rep-overdue').textContent = overdue.length;
+  document.getElementById('rep-revenue-month').textContent = fmtRs(repRevMonth);
+
+  // Status breakdown
+  var statusCount = {};
+  repairs.forEach(function(r){ statusCount[r.status]=(statusCount[r.status]||0)+1; });
+  document.getElementById('rep-status-breakdown').innerHTML = Object.entries(statusCount).map(function(e){ return '<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border)"><span>'+e[0]+'</span><strong>'+e[1]+'</strong></div>'; }).join('');
+
+  // Timer logs
+  var logs = (db.timerLogs||[]).slice(-5).reverse();
+  var fmt = function(s){ var h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sc=s%60; return [h,m,sc].map(function(v){ return String(v).padStart(2,'0'); }).join(':'); };
+  document.getElementById('rep-time-logs').innerHTML = logs.length ? logs.map(function(l){ return '<div style="padding:7px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between"><span style="font-size:12px">'+l.repairName+'</span><span style="color:var(--primary);font-weight:700">'+fmt(l.seconds)+'</span></div>'; }).join('') : '<div style="color:var(--muted)">No time logs yet</div>';
+
+  // Overdue list
+  document.getElementById('rep-overdue-list').innerHTML = overdue.length ?
+    '<table style="width:100%;font-size:12px"><thead><tr><th>ID</th><th>Customer</th><th>Device</th><th>Issue</th><th>Due Date</th><th>Status</th></tr></thead><tbody>'+
+    overdue.map(function(r){ return '<tr><td>R-'+r.id+'</td><td>'+r.customer+'</td><td>'+r.device+'</td><td>'+r.issue+'</td><td style="color:var(--danger)">'+r.dueDate+'</td><td>'+r.status+'</td></tr>'; }).join('')+'</tbody></table>' :
+    '<div style="color:var(--success);padding:10px">✅ No overdue repairs</div>';
+}
+
+// ── SALES INTELLIGENCE ────────────────────────────────────────────────
+function loadAdvSalesIntel() {
+  var db = getDB(); if (!db) return;
+  var invoices = db.invoices || [];
+  var now = new Date();
+  var thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  var lastMonthStart = new Date(now.getFullYear(), now.getMonth()-1, 1);
+  var lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
+
+  var thisMonthInvs = invoices.filter(function(inv){ var d=parseAdminDate2(inv.date); return d&&d>=thisMonthStart; });
+  var lastMonthInvs = invoices.filter(function(inv){ var d=parseAdminDate2(inv.date); return d&&d>=lastMonthStart&&d<=lastMonthEnd; });
+  var thisRev = thisMonthInvs.reduce(function(a,inv){ return a+(inv.total||0); },0);
+  var lastRev = lastMonthInvs.reduce(function(a,inv){ return a+(inv.total||0); },0);
+
+  // Forecast: simple trend
+  var monthlyTotals = {};
+  invoices.forEach(function(inv){ var d=parseAdminDate2(inv.date); if(!d) return; var k=d.getFullYear()+'-'+d.getMonth(); monthlyTotals[k]=(monthlyTotals[k]||0)+(inv.total||0); });
+  var vals = Object.values(monthlyTotals).slice(-6);
+  var forecast = vals.length>=2 ? Math.max(0, vals[vals.length-1]+(vals[vals.length-1]-vals[vals.length-2])) : thisRev;
+
+  var avgItems = thisMonthInvs.length ? thisMonthInvs.reduce(function(a,inv){ return a+(inv.items||[]).length; },0)/thisMonthInvs.length : 0;
+
+  document.getElementById('si-this-month').textContent = fmtRs(thisRev);
+  document.getElementById('si-last-month').textContent = fmtRs(lastRev);
+  document.getElementById('si-forecast').textContent = fmtRs(forecast);
+  document.getElementById('si-conversion').textContent = avgItems.toFixed(1);
+
+  // Upsell rules
+  var rules = db.upsellRules || [];
+  document.getElementById('si-upsell-rules').innerHTML = rules.length ?
+    rules.slice(0,5).map(function(r){ return '<div style="padding:7px 0;border-bottom:1px solid var(--border);font-size:12px"><strong>'+r.trigger+'</strong> → '+r.suggest+'</div>'; }).join('') :
+    '<div style="color:var(--muted)">No upsell rules. Add from POS → Upsell Engine.</div>';
+
+  // Day heatmap
+  var dayTotals=[0,0,0,0,0,0,0], dayCounts=[0,0,0,0,0,0,0];
+  invoices.forEach(function(inv){ var d=parseAdminDate2(inv.date); if(!d) return; dayTotals[d.getDay()]+=(inv.total||0); dayCounts[d.getDay()]++; });
+  var dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  var maxAvg=Math.max.apply(null,dayTotals.map(function(t,i){ return dayCounts[i]?t/dayCounts[i]:0; }))||1;
+  document.getElementById('si-heatmap').innerHTML = '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center">'+
+    dayNames.map(function(d,i){ var avg=dayCounts[i]?dayTotals[i]/dayCounts[i]:0; var pct=avg/maxAvg; return '<div style="background:rgba(108,99,255,'+pct.toFixed(2)+');border-radius:6px;padding:8px 2px"><div style="font-size:10px;color:var(--muted)">'+d+'</div><div style="font-size:11px;font-weight:700">'+fmtRs(avg).replace('Rs. ','')+'</div></div>'; }).join('')+'</div>';
+}
+
+// ── BRANDING ──────────────────────────────────────────────────────────
+function loadAdvBranding() {
+  var db = getDB(); if (!db) return;
+  var d = db.invDesign || {};
+  var s = db.settings || {};
+  var setVal3 = function(id,v){ var e=document.getElementById(id); if(e) e.value=v||''; };
+  setVal3('brand-template', d.template||'classic');
+  setVal3('brand-color', d.color||'#6c63ff');
+  setVal3('brand-tagline', d.footer||'Thank you for choosing ST Mobile!');
+  setVal3('brand-logo', d.logoUrl||'');
+
+  var cardEl = document.getElementById('brand-shop-card');
+  if(cardEl) cardEl.innerHTML = '<strong>'+s.shopName+'</strong><br>'+s.phone+'<br>'+s.address+'<br>'+s.whatsapp;
+}
+
+function saveBrandSettings() {
+  var db = getDB(); if (!db) { toast('No POS data!','var(--danger)'); return; }
+  if (!db.invDesign) db.invDesign = {};
+  db.invDesign.template = document.getElementById('brand-template').value;
+  db.invDesign.color = document.getElementById('brand-color').value;
+  db.invDesign.footer = document.getElementById('brand-tagline').value;
+  db.invDesign.logoUrl = document.getElementById('brand-logo').value;
+  saveDB(db); toast('✅ Branding saved! Sync with POS.');
+}
+
+function generateBrandQR() {
+  var db = getDB(); if (!db) return;
+  var s = db.settings || {};
+  var text = encodeURIComponent('📱 '+s.shopName+'\n📞 '+s.phone+'\n💬 '+s.whatsapp+'\n📍 '+s.address);
+  var url = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data='+text;
+  window.open(url, '_blank');
+  toast('✅ QR generated!');
+}
+
+// ── OPERATIONS DASHBOARD ──────────────────────────────────────────────
+function loadAdvOperations() {
+  var db = getDB(); if (!db) return;
+  var tasks = db.tasks || [];
+  var rosterShifts = db.rosterShifts || [];
+  var timerLogs = db.timerLogs || [];
+  var referrals = db.referrals || [];
+  var today = new Date(); today.setHours(0,0,0,0);
+  var todayStr = new Date().toISOString().split('T')[0];
+
+  var pending = tasks.filter(function(t){ return t.status!=='done'; });
+  var overdue = pending.filter(function(t){ var d=t.dueDate?new Date(t.dueDate):null; if(d) d.setHours(0,0,0,0); return d&&d<today; });
+  var todayShifts = rosterShifts.filter(function(s){ return s.date===todayStr; });
+  var totalHours = timerLogs.reduce(function(a,l){ return a+(l.seconds||0); },0);
+
+  document.getElementById('ops-tasks-pending').textContent = pending.length;
+  document.getElementById('ops-tasks-overdue').textContent = overdue.length;
+  document.getElementById('ops-staff-today').textContent = todayShifts.length;
+  document.getElementById('ops-repair-hours').textContent = Math.round(totalHours/3600)+'h';
+
+  // Today's tasks
+  var todayTasks = pending.filter(function(t){ var d=t.dueDate?new Date(t.dueDate):null; if(d) d.setHours(0,0,0,0); return d&&d.getTime()===today.getTime(); });
+  var tasksEl = document.getElementById('ops-today-tasks');
+  tasksEl.innerHTML = todayTasks.length ? todayTasks.map(function(t){ return '<div style="padding:7px 0;border-bottom:1px solid var(--border);font-size:12px;display:flex;justify-content:space-between"><span>'+(t.priority==='high'?'🔴 ':t.priority==='medium'?'🟡 ':'🟢 ')+t.title+'</span><span style="color:var(--muted)">'+(t.assignedTo||'—')+'</span></div>'; }).join('') : '<div style="color:var(--muted)">No tasks due today</div>';
+
+  // Today's roster
+  var rosterEl = document.getElementById('ops-today-roster');
+  rosterEl.innerHTML = todayShifts.length ? todayShifts.map(function(s){ return '<div style="padding:7px 0;border-bottom:1px solid var(--border);font-size:12px;display:flex;justify-content:space-between"><strong>'+s.staffName+'</strong><span style="color:var(--primary)">'+s.start+' — '+s.end+'</span></div>'; }).join('') : '<div style="color:var(--muted)">No staff scheduled today</div>';
+
+  // Checklist status
+  var checkState = db.settings.checklistState || {};
+  var todayLabel = new Date().toLocaleDateString();
+  var openItems = db.settings.openChecklist || [];
+  var closeItems = db.settings.closeChecklist || [];
+  var openDone = openItems.filter(function(_,i){ return (checkState.open||{})[todayLabel+'-'+i]; }).length;
+  var closeDone = closeItems.filter(function(_,i){ return (checkState.close||{})[todayLabel+'-'+i]; }).length;
+  document.getElementById('ops-checklist-status').innerHTML =
+    '<div style="padding:8px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between"><span>🌅 Opening</span><span style="color:'+(openDone===openItems.length?'var(--success)':'var(--warning)')+'">'+openDone+'/'+openItems.length+' done</span></div>'+
+    '<div style="padding:8px 0;display:flex;justify-content:space-between"><span>🌙 Closing</span><span style="color:'+(closeDone===closeItems.length?'var(--success)':'var(--warning)')+'">'+closeDone+'/'+closeItems.length+' done</span></div>';
+
+  // Referrals
+  var refEl = document.getElementById('ops-referrals');
+  var totalBonus = referrals.reduce(function(a,r){ return a+(r.bonus||0); },0);
+  refEl.innerHTML = '<div style="padding:7px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between"><span>Total Referrals</span><strong>'+referrals.length+'</strong></div>'+
+    '<div style="padding:7px 0;display:flex;justify-content:space-between"><span>Total Bonus Given</span><strong style="color:var(--warning)">'+fmtRs(totalBonus)+'</strong></div>';
+}
+
+
+
+// ═══════════════════════════════════════
+// ADVANCED ADMIN FEATURES
+// ═══════════════════════════════════════
+
+// Chart.js loader
+var advChartInstance = null;
+
+function loadAdvAnalytics() {
+  var db = getDB();
+  if (!db) { return; }
+  var invoices = db.invoices || [];
+  var products = db.products || [];
+  var repairs = db.repairs || [];
+  
+  var totalRev = invoices.reduce(function(a,inv){ return a+(inv.total||0); }, 0);
+  var repRev = repairs.filter(function(r){ return r.status==='Delivered'||r.status==='Done'; }).reduce(function(a,r){ return a+(r.cost||0); }, 0);
+  var allRev = totalRev + repRev;
+  
+  var totalProfit = 0;
+  invoices.forEach(function(inv) {
+    (inv.items||[]).forEach(function(it) {
+      var p = products.find(function(pr){ return pr.id===it.id; });
+      totalProfit += ((it.price||0) - (p?p.cost:0)) * (it.qty||1);
+    });
+  });
+  totalProfit += repRev * 0.6; // estimate repair profit
+  
+  var margin = allRev > 0 ? (totalProfit/allRev*100) : 0;
+  var avgSale = invoices.length ? totalRev/invoices.length : 0;
+  
+  var s = function(id, v) { var e=document.getElementById(id); if(e) e.textContent=v; };
+  s('adv-total-rev', 'Rs. ' + Math.round(allRev).toLocaleString());
+  s('adv-total-profit', 'Rs. ' + Math.round(totalProfit).toLocaleString());
+  s('adv-margin', margin.toFixed(1) + '%');
+  s('adv-avg-sale', 'Rs. ' + Math.round(avgSale).toLocaleString());
+  
+  // Monthly chart
+  var monthly = {};
+  var now = new Date();
+  for (var m=0; m<12; m++) monthly[m] = 0;
+  invoices.forEach(function(inv) {
+    var d = parseAdminDate(inv.date); if (!d) return;
+    if (d.getFullYear() === now.getFullYear()) monthly[d.getMonth()] += inv.total||0;
+  });
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var ctx = document.getElementById('adv-revenue-chart');
+  if (ctx) {
+    if (advChartInstance) advChartInstance.destroy();
+    var ChartJS = window.Chart;
+    if (ChartJS) {
+      advChartInstance = new ChartJS(ctx, {
+        type: 'bar',
+        data: { labels: months, datasets: [{ label: 'Revenue (Rs.)', data: months.map(function(_,i){ return monthly[i]; }), backgroundColor: 'rgba(108,99,255,0.7)', borderRadius: 5 }] },
+        options: { responsive: true, plugins: { legend: { labels: { color: '#e0e0ff', font:{size:11} } } }, scales: { x: { ticks:{color:'#7070a0'} }, y: { ticks:{color:'#7070a0'} } } }
+      });
+    }
+  }
+  
+  // Top products
+  var prodRev = {};
+  invoices.forEach(function(inv){ (inv.items||[]).forEach(function(it){ prodRev[it.name]=(prodRev[it.name]||0)+(it.price||0)*(it.qty||1); }); });
+  var top = Object.entries(prodRev).sort(function(a,b){ return b[1]-a[1]; }).slice(0,6);
+  var topEl = document.getElementById('adv-top-products');
+  if (topEl) topEl.innerHTML = top.map(function(p,i){ return '<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border)"><span style="color:var(--muted)">'+(i+1)+'. '+p[0]+'</span><strong>Rs. '+Math.round(p[1]).toLocaleString()+'</strong></div>'; }).join('') || '<div style="color:var(--muted)">No sales data</div>';
+  
+  // Payment split
+  var payMethods = {};
+  invoices.forEach(function(inv){ var m=inv.payment||'Cash'; payMethods[m]=(payMethods[m]||0)+(inv.total||0); });
+  var payEl = document.getElementById('adv-payment-split');
+  if (payEl) {
+    var pyTotal = Object.values(payMethods).reduce(function(a,v){ return a+v; },0);
+    payEl.innerHTML = Object.entries(payMethods).map(function(e){ return '<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border)"><span>'+e[0]+'</span><span>Rs. '+Math.round(e[1]).toLocaleString()+' <span style="color:var(--muted);font-size:11px">('+Math.round(pyTotal>0?e[1]/pyTotal*100:0)+'%)</span></span></div>'; }).join('') || '<div style="color:var(--muted)">No data</div>';
+  }
+  
+  // Category
+  var catRev = {};
+  invoices.forEach(function(inv){ (inv.items||[]).forEach(function(it){ var p=products.find(function(pr){ return pr.id===it.id; }); var cat=(p?p.category:'Other'); catRev[cat]=(catRev[cat]||0)+(it.price||0)*(it.qty||1); }); });
+  var catEl = document.getElementById('adv-cat-perf');
+  if (catEl) catEl.innerHTML = Object.entries(catRev).sort(function(a,b){ return b[1]-a[1]; }).map(function(e){ return '<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border)"><span>'+e[0]+'</span><strong>Rs. '+Math.round(e[1]).toLocaleString()+'</strong></div>'; }).join('') || '<div style="color:var(--muted)">No data</div>';
+  
+  // Alerts
+  var alerts = [];
+  var lowStock = products.filter(function(p){ return p.stock <= (p.minStock||2); });
+  if (lowStock.length) alerts.push({ type:'warn', msg: lowStock.length+' products below minimum stock: '+lowStock.slice(0,3).map(function(p){ return p.name; }).join(', ')+(lowStock.length>3?'...':'') });
+  var overdue = (db.repairs||[]).filter(function(r){ return r.status!=='Delivered' && r.dueDate && new Date(r.dueDate)<new Date(); });
+  if (overdue.length) alerts.push({ type:'danger', msg: overdue.length+' overdue repairs!' });
+  var pendingCredits = (db.credits||[]).filter(function(c){ return c.status==='Active'; });
+  if (pendingCredits.length) alerts.push({ type:'info', msg: pendingCredits.length+' active credit sales with outstanding balance' });
+  var alertEl = document.getElementById('adv-alerts');
+  if (alertEl) alertEl.innerHTML = alerts.length ? alerts.map(function(a){ var colors={warn:'var(--warning)',danger:'var(--danger)',info:'var(--info)'}; return '<div style="padding:10px 14px;margin-bottom:8px;background:var(--card2);border-left:3px solid '+colors[a.type]+';border-radius:8px;font-size:13px">'+a.msg+'</div>'; }).join('') : '<div style="color:var(--success);font-size:13px;padding:10px">✅ No critical alerts</div>';
+}
+
+function parseAdminDate(str) {
+  if (!str) return null;
+  var iso = str.match(/^(\d{4})-(\d{2})-(\d{2})/); if (iso) return new Date(str);
+  var sl = str.match(/^(\d{2})\/(\d{2})\/(\d{4})/); if (sl) return new Date(sl[3]+'-'+sl[2]+'-'+sl[1]);
+  var d = new Date(str); return isNaN(d) ? null : d;
+}
+
+// ── STAFF MANAGER ──
+function loadAdminStaff() {
+  var db = getDB(); if (!db) return;
+  if (!db.staff) db.staff = [];
+  var tbody = document.getElementById('admin-staff-tbl');
+  if (!tbody) return;
+  tbody.innerHTML = db.staff.length ? db.staff.map(function(s) {
+    return '<tr><td><strong>'+s.name+'</strong></td><td>'+s.role+'</td><td>'+(s.phone||'—')+'</td>'+
+      '<td>'+(s.commRate||0)+'% on '+(s.commBase||'revenue')+'</td>'+
+      '<td><span style="color:'+(s.status==='Active'?'var(--success)':'var(--muted)')+'">'+s.status+'</span></td>'+
+      '<td><button class="btn bsm" style="background:rgba(108,99,255,0.15);color:var(--pri)" onclick="editAdminStaff('+s.id+')">Edit</button> '+
+      '<button class="btn bsm" style="background:rgba(255,23,68,0.1);color:var(--danger);border:1px solid rgba(255,23,68,0.2)" onclick="deleteAdminStaff('+s.id+')">Del</button></td></tr>';
+  }).join('') : '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--muted)">No staff added yet</td></tr>';
+}
+
+function openAdminStaffModal(id) {
+  var db = getDB(); if (!db) return;
+  var s = id ? (db.staff||[]).find(function(x){ return x.id===id; }) : null;
+  document.getElementById('asf-id').value = s ? s.id : '';
+  document.getElementById('asf-name').value = s ? s.name : '';
+  document.getElementById('asf-role').value = s ? s.role : 'Cashier';
+  document.getElementById('asf-phone').value = s ? (s.phone||'') : '';
+  document.getElementById('asf-comm').value = s ? (s.commRate||0) : 0;
+  document.getElementById('asf-comm-base').value = s ? (s.commBase||'revenue') : 'revenue';
+  document.getElementById('asf-status').value = s ? (s.status||'Active') : 'Active';
+  document.getElementById('admin-staff-form').style.display = 'block';
+}
+
+function editAdminStaff(id) { openAdminStaffModal(id); }
+
+function saveAdminStaff() {
+  var db = getDB(); if (!db) return;
+  var name = document.getElementById('asf-name').value.trim();
+  if (!name) { toast('Name required!', 'var(--danger)'); return; }
+  if (!db.staff) db.staff = [];
+  var id = parseInt(document.getElementById('asf-id').value) || Date.now();
+  var obj = { id:id, name:name, role:document.getElementById('asf-role').value, phone:document.getElementById('asf-phone').value, commRate:parseFloat(document.getElementById('asf-comm').value)||0, commBase:document.getElementById('asf-comm-base').value, status:document.getElementById('asf-status').value };
+  var idx = db.staff.findIndex(function(s){ return s.id===id; });
+  if (idx>=0) db.staff[idx]=obj; else db.staff.push(obj);
+  saveDB(db); loadAdminStaff();
+  document.getElementById('admin-staff-form').style.display = 'none';
+  toast('Staff saved!');
+}
+
+function deleteAdminStaff(id) {
+  if (!confirm('Delete this staff member?')) return;
+  var db = getDB(); if (!db) return;
+  db.staff = (db.staff||[]).filter(function(s){ return s.id!==id; });
+  saveDB(db); loadAdminStaff(); toast('Deleted!', 'var(--danger)');
+}
+
+// ── TAX SETTINGS ──
+function loadTaxPanel() {
+  var db = getDB(); if (!db) return;
+  var s = db.settings || {};
+  var setVal2 = function(id,v){ var e=document.getElementById(id); if(e) e.value=v||''; };
+  setVal2('tax-rate', s.taxRate||0);
+  setVal2('tax-label', s.taxLabel||'Tax');
+  setVal2('tax-mode', s.taxMode||'none');
+  updateTaxPreview();
+  // Tax collection summary
+  var invoices = db.invoices || [];
+  var totalTax = invoices.reduce(function(a,inv){ return a+(inv.tax||0); }, 0);
+  var el = document.getElementById('tax-summary');
+  if (el) el.innerHTML = '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span style="color:var(--muted)">Total Tax Collected</span><strong style="color:var(--success)">Rs. '+Math.round(totalTax).toLocaleString()+'</strong></div>'+
+    '<div style="display:flex;justify-content:space-between;padding:8px 0"><span style="color:var(--muted)">Tax Invoices Count</span><strong>'+invoices.filter(function(inv){ return inv.tax>0; }).length+'</strong></div>';
+}
+
+function updateTaxPreview() {
+  var rate = parseFloat(document.getElementById('tax-rate') ? document.getElementById('tax-rate').value : 0)||0;
+  var label = document.getElementById('tax-label') ? document.getElementById('tax-label').value : 'Tax';
+  var mode = document.getElementById('tax-mode') ? document.getElementById('tax-mode').value : 'none';
+  var el = document.getElementById('tax-preview');
+  if (!el) return;
+  if (mode==='none') { el.innerHTML = 'No tax applied to sales'; return; }
+  var samplePrice = 1000;
+  if (mode==='inclusive') {
+    var taxAmt = samplePrice - (samplePrice/(1+rate/100));
+    el.innerHTML = 'Sample price Rs. 1000 → '+label+': Rs. '+taxAmt.toFixed(2)+' included';
+  } else {
+    var tax = samplePrice * rate/100;
+    el.innerHTML = 'Sample price Rs. 1000 + '+label+' '+rate+'% = Rs. '+(samplePrice+tax).toFixed(2)+' total';
+  }
+}
+
+function saveTaxSettings() {
+  var db = getDB(); if (!db) { toast('No POS data!','var(--danger)'); return; }
+  if (!db.settings) db.settings = {};
+  db.settings.taxRate = parseFloat(document.getElementById('tax-rate').value)||0;
+  db.settings.taxLabel = document.getElementById('tax-label').value||'Tax';
+  db.settings.taxMode = document.getElementById('tax-mode').value;
+  saveDB(db); toast('Tax settings saved!');
+}
+
+// ── COMMISSION ──
+function loadCommissionPanel() {
+  var db = getDB(); if (!db) return;
+  var s = db.settings || {};
+  var setChk2 = function(id,v){ var e=document.getElementById(id); if(e) e.checked=!!v; };
+  var setVal2 = function(id,v){ var e=document.getElementById(id); if(e) e.value=v||''; };
+  setChk2('comm-enabled', s.commEnabled);
+  setVal2('comm-freq', s.commFreq||'monthly');
+  setVal2('comm-min-sales', s.commMinSales||0);
+  setVal2('comm-payout-day', s.commPayoutDay||'1');
+  
+  // Report
+  var now = new Date();
+  var monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  var invoices = (db.invoices||[]).filter(function(inv){ var d=parseAdminDate(inv.date); return d && d>=monthStart; });
+  var staff = db.staff || [];
+  var reportEl = document.getElementById('comm-report');
+  if (reportEl) {
+    var rows = staff.filter(function(s){ return s.status!=='Inactive'; }).map(function(s) {
+      var staffInvs = invoices.filter(function(inv){ return inv.staffId===s.id; });
+      var rev = staffInvs.reduce(function(a,inv){ return a+(inv.total||0); },0);
+      var comm = rev * (s.commRate||0) / 100;
+      return '<tr><td>'+s.name+'</td><td>'+s.role+'</td><td>'+staffInvs.length+'</td><td>Rs. '+rev.toLocaleString()+'</td><td style="color:var(--success);font-weight:700">Rs. '+Math.round(comm).toLocaleString()+'</td></tr>';
+    });
+    reportEl.innerHTML = staff.length ? '<table><thead><tr><th>Staff</th><th>Role</th><th>Sales</th><th>Revenue</th><th>Commission</th></tr></thead><tbody>'+rows.join('')+'</tbody></table>' : '<div style="color:var(--muted);padding:10px">No staff added yet. Add staff in Staff Manager.</div>';
+  }
+}
+
+function saveCommissionSettings() {
+  var db = getDB(); if (!db) { toast('No POS data!','var(--danger)'); return; }
+  if (!db.settings) db.settings = {};
+  db.settings.commEnabled = document.getElementById('comm-enabled') ? document.getElementById('comm-enabled').checked : false;
+  db.settings.commFreq = document.getElementById('comm-freq') ? document.getElementById('comm-freq').value : 'monthly';
+  db.settings.commMinSales = parseFloat(document.getElementById('comm-min-sales') ? document.getElementById('comm-min-sales').value : 0)||0;
+  db.settings.commPayoutDay = document.getElementById('comm-payout-day') ? document.getElementById('comm-payout-day').value : '1';
+  saveDB(db); toast('Commission settings saved!');
+}
+
+// ── NOTIFICATIONS ──
+function loadNotificationsPanel() {
+  var db = getDB(); if (!db) return;
+  var s = db.settings || {};
+  var setChk2 = function(id,v){ var e=document.getElementById(id); if(e) e.checked=(v===undefined?true:!!v); };
+  setChk2('notif-lowstock', s.notifLowstock);
+  setChk2('notif-birthday', s.notifBirthday);
+  setChk2('notif-repair', s.notifRepair);
+  setChk2('notif-credit', s.notifCredit);
+  setChk2('notif-orders', s.notifOrders);
+  setChk2('notif-daily', s.notifDaily);
+  var setVal2 = function(id,v){ var e=document.getElementById(id); if(e) e.value=v||''; };
+  setVal2('notif-lowstock-threshold', s.notifLowstockThreshold||'');
+  setVal2('notif-wa-number', s.notifWaNumber||'');
+  
+  // Alerts list
+  var alerts = [];
+  var lowStock = (db.products||[]).filter(function(p){ return p.stock <= (p.minStock||2); });
+  if (lowStock.length) alerts.push('📦 '+lowStock.length+' low stock items: '+lowStock.slice(0,3).map(function(p){ return p.name; }).join(', '));
+  var overdue = (db.repairs||[]).filter(function(r){ return r.status!=='Delivered' && r.dueDate && new Date(r.dueDate)<new Date(); });
+  if (overdue.length) alerts.push('🔧 '+overdue.length+' overdue repairs');
+  var overdueCredits = (db.credits||[]).filter(function(c){ return c.status==='Active' && c.nextDue && new Date(c.nextDue)<new Date(); });
+  if (overdueCredits.length) alerts.push('💳 '+overdueCredits.length+' credit payments overdue');
+  var alertsEl = document.getElementById('admin-alerts-list');
+  if (alertsEl) alertsEl.innerHTML = alerts.length ? alerts.map(function(a){ return '<div style="padding:10px;margin-bottom:6px;background:rgba(255,171,0,0.08);border-left:3px solid var(--warning);border-radius:8px;font-size:13px">'+a+'</div>'; }).join('') : '<div style="color:var(--success);font-size:13px;padding:10px">✅ No active alerts</div>';
+}
+
+function saveNotificationSettings() {
+  var db = getDB(); if (!db) { toast('No POS data!','var(--danger)'); return; }
+  if (!db.settings) db.settings = {};
+  var getChk = function(id){ var e=document.getElementById(id); return e?e.checked:false; };
+  var getVal = function(id){ var e=document.getElementById(id); return e?e.value:''; };
+  db.settings.notifLowstock = getChk('notif-lowstock');
+  db.settings.notifBirthday = getChk('notif-birthday');
+  db.settings.notifRepair = getChk('notif-repair');
+  db.settings.notifCredit = getChk('notif-credit');
+  db.settings.notifOrders = getChk('notif-orders');
+  db.settings.notifDaily = getChk('notif-daily');
+  db.settings.notifLowstockThreshold = parseFloat(getVal('notif-lowstock-threshold'))||null;
+  db.settings.notifWaNumber = getVal('notif-wa-number');
+  saveDB(db); toast('Notification settings saved!');
+}
 </script>
 </body>
 </html>
