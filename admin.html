@@ -1767,6 +1767,24 @@ tr:hover td { background: rgba(108,99,255,0.07) !important; }
           <div style="background:rgba(255,171,0,0.1);border:1px solid rgba(255,171,0,0.3);border-radius:8px;padding:10px;font-size:12px;color:var(--warning)">
             ⚠️ Import කරද්දී දැනට තිබෙන <b>සියලු data replace</b> වෙනවා. Export backup එකක් ගන්නකොට ආරක්ෂිතයි.
           </div>
+
+          <!-- AUTO BACKUP SECTION -->
+          <div style="background:rgba(0,176,255,0.08);border:1px solid rgba(0,176,255,0.25);border-radius:10px;padding:12px;margin-top:10px">
+            <div style="font-size:12px;font-weight:700;color:var(--info);margin-bottom:8px">⏰ Auto Backup Reminder</div>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px">
+              <select id="auto-backup-interval" style="width:180px" onchange="saveAutoBackupSettings()">
+                <option value="0">🚫 Disabled</option>
+                <option value="1">📅 Daily (Every day)</option>
+                <option value="3">📅 Every 3 Days</option>
+                <option value="7">📅 Weekly</option>
+                <option value="30">📅 Monthly</option>
+              </select>
+              <button class="btn bo bsm" onclick="resetAutoBackupTimer()">🔄 Reset Timer</button>
+            </div>
+            <div id="auto-backup-status" style="font-size:11px;color:var(--muted)">Auto backup status loading...</div>
+            <div id="auto-backup-countdown" style="font-size:12px;color:var(--info);margin-top:4px;font-weight:600"></div>
+            <div style="font-size:11px;color:var(--muted);margin-top:6px">💡 App open වන හෑම වෙලේ check කරයි. Backup due date pass වූ විට reminder popup දෙයි.</div>
+          </div>
         </div>
         <button class="btn bp2" onclick="saveSettings()">💾 Save Settings</button>
         <span style="font-size:11px;color:var(--muted);margin-left:8px">(changes are also auto-saved)</span>
@@ -6803,6 +6821,100 @@ function doPDF(cid, fname){
 }
 
 // =========== BACKUP / RESTORE ===========
+// =========== AUTO BACKUP SYSTEM ===========
+var _autoBackupCheckTimer = null;
+
+function saveAutoBackupSettings() {
+  var sel = document.getElementById('auto-backup-interval');
+  if (!sel) return;
+  var days = parseInt(sel.value);
+  db.settings.autoBackupDays = days;
+  if (days > 0 && !db.settings.autoBackupLastDone) {
+    db.settings.autoBackupLastDone = new Date().toISOString();
+  }
+  saveDB();
+  updateAutoBackupStatus();
+  if (days > 0) {
+    toast('✅ Auto backup reminder set to every ' + (days===1?'day':days+' days') + '!');
+  } else {
+    toast('🚫 Auto backup reminder disabled.');
+  }
+}
+
+function resetAutoBackupTimer() {
+  db.settings.autoBackupLastDone = new Date().toISOString();
+  saveDB();
+  updateAutoBackupStatus();
+  toast('🔄 Auto backup timer reset!');
+}
+
+function updateAutoBackupStatus() {
+  var statusEl = document.getElementById('auto-backup-status');
+  var countdownEl = document.getElementById('auto-backup-countdown');
+  var sel = document.getElementById('auto-backup-interval');
+  if (!statusEl) return;
+  var days = db.settings.autoBackupDays || 0;
+  if (sel) sel.value = String(days);
+  if (!days || days === 0) {
+    statusEl.textContent = '🚫 Auto backup reminder disabled.';
+    if (countdownEl) countdownEl.textContent = '';
+    return;
+  }
+  var lastDone = db.settings.autoBackupLastDone ? new Date(db.settings.autoBackupLastDone) : null;
+  if (!lastDone) {
+    statusEl.textContent = '⚠️ Never backed up!';
+    if (countdownEl) countdownEl.textContent = '📢 Please take a backup now!';
+    return;
+  }
+  var now = new Date();
+  var diffMs = now - lastDone;
+  var diffDays = diffMs / (1000 * 60 * 60 * 24);
+  var nextDue = new Date(lastDone.getTime() + days * 24 * 60 * 60 * 1000);
+  var daysLeft = Math.ceil((nextDue - now) / (1000 * 60 * 60 * 24));
+  var lastStr = lastDone.toLocaleDateString('en-GB');
+  statusEl.textContent = '✅ Last backup: ' + lastStr;
+  if (daysLeft <= 0) {
+    if (countdownEl) countdownEl.innerHTML = '<span style="color:var(--danger)">🔴 Backup OVERDUE by '+Math.abs(daysLeft)+' day(s)! Backup now!</span>';
+  } else if (daysLeft === 1) {
+    if (countdownEl) countdownEl.innerHTML = '<span style="color:var(--warning)">🟡 Next backup due TOMORROW!</span>';
+  } else {
+    if (countdownEl) countdownEl.textContent = '🟢 Next backup in ' + daysLeft + ' day(s).';
+  }
+}
+
+function checkAutoBackupReminder() {
+  var days = db.settings.autoBackupDays || 0;
+  if (!days) return;
+  var lastDone = db.settings.autoBackupLastDone ? new Date(db.settings.autoBackupLastDone) : null;
+  if (!lastDone) {
+    showAutoBackupPopup('⚠️ You have never backed up your data! Please take a backup now.');
+    return;
+  }
+  var diffDays = (new Date() - lastDone) / (1000 * 60 * 60 * 24);
+  if (diffDays >= days) {
+    var overdue = Math.floor(diffDays - days);
+    var msg = overdue > 0
+      ? '🔴 Your backup is ' + overdue + ' day(s) OVERDUE!'
+      : '📢 It\'s time to take your scheduled backup!';
+    showAutoBackupPopup(msg);
+  }
+}
+
+function showAutoBackupPopup(msg) {
+  // Use toast + confirm dialog
+  setTimeout(function() {
+    var go = confirm('💾 AUTO BACKUP REMINDER\n\n' + msg + '\n\nDownload backup now?');
+    if (go) {
+      exportSQLiteFile();
+      db.settings.autoBackupLastDone = new Date().toISOString();
+      saveDB();
+      updateAutoBackupStatus();
+    }
+  }, 1500);
+}
+
+// =========== END AUTO BACKUP ===========
+
 function exportDB(){
   try {
     var data = JSON.stringify(db, null, 2);
@@ -10134,6 +10246,19 @@ applyRoleUI = function(){
   if(adminBtn) adminBtn.style.display = role==='cashier' ? 'none' : '';
   if(roleBadge) roleBadge.style.cursor = role==='cashier' ? 'default' : 'pointer';
 };
+
+// ---- EXTEND loadSettingsFrm to load auto-backup settings ----
+var _origLoadSettingsForAutoBackup = loadSettingsFrm;
+loadSettingsFrm = function(){
+  _origLoadSettingsForAutoBackup();
+  updateAutoBackupStatus();
+};
+
+// ---- AUTO BACKUP CHECK ON STARTUP (delay to let DB load) ----
+setTimeout(function(){
+  checkAutoBackupReminder();
+  updateAutoBackupStatus();
+}, 3000);
 
 init();
 </script>
